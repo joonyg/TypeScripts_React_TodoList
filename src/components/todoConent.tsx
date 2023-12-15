@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import {
   addTodo,
@@ -8,13 +8,30 @@ import {
 } from '../redux/modules/todoslice'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../redux/config/configStore'
+import axios, { Axios, AxiosInstance } from 'axios'
+import { create } from 'domain'
+
 function TodoConent() {
   const [addTitle, setAddTitle] = useState('') // 제목입력
   const [addInput, setAddInput] = useState('') // 내용입력
-  const [newTodo, setNewTodo] = useState()
-  const todosTodo = useSelector((state: RootState) => state.todos)
-  console.log(todosTodo)
+  const [newTodo, setNewTodo] = useState([])
+  //const todosTodo = useSelector((state: RootState) => state.todos)
   const dispatch = useDispatch()
+  const axiosClient: AxiosInstance = axios.create({
+    baseURL: 'http://localhost:3001',
+  })
+
+  const fetchTodoList = async () => {
+    try {
+      const response = await axiosClient.get('/todo')
+      setNewTodo(response.data)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  useEffect(() => {
+    fetchTodoList()
+  }, [])
 
   const addTitleFunc = (event: React.ChangeEvent<HTMLInputElement>) => {
     setAddTitle(event.target.value)
@@ -24,32 +41,51 @@ function TodoConent() {
     setAddInput(event.target.value)
   } //내용 함수
 
-  const checkTodo = (event: React.FormEvent<HTMLFormElement>) => {
-    //입력 버튼
-    event.preventDefault()
-    dispatch(
-      addTodo({
-        id: todosTodo.data.length + 1,
+  const checkTodo = async (event: React.FormEvent<HTMLFormElement>) => {
+    try {
+      event.preventDefault()
+      await axiosClient.post(`/todo`, {
+        id: null,
         title: addTitle,
-        contents: addInput,
+        content: addInput,
         isDone: false,
       })
-    )
-    setAddTitle('')
-    setAddInput('')
+      //입력 버튼
+
+      setAddTitle('')
+      setAddInput('')
+      fetchTodoList()
+    } catch (error) {
+      console.log(error)
+    }
   }
 
-  const checkSuccessBt = (id: number) => {
+  const checkSuccessBt = async (id: number) => {
     //성공 버튼
-    dispatch(completeTodo(id))
+    try {
+      await axiosClient.patch(`/todo/${id}`, { isDone: true })
+      fetchTodoList()
+    } catch (error) {
+      console.log(error)
+    }
   }
-  const DeleteBt = (id: number) => {
+  const DeleteBt = async (id: number) => {
     // 삭제 버튼
-    dispatch(deleteTodo(id))
+    try {
+      await axiosClient.delete(`/todo/${id}`)
+      fetchTodoList()
+    } catch (error) {
+      console.log(error)
+    }
   }
-  const RemoveBt = (id: number) => {
+  const RemoveBt = async (id: number) => {
     // 되돌리기 버튼
-    dispatch(undoTodo(id))
+    try {
+      await axiosClient.patch(`/todo/${id}`, { isDone: false })
+      fetchTodoList()
+    } catch (error) {
+      console.log(error)
+    }
   }
   return (
     <ScTodoGround>
@@ -64,12 +100,12 @@ function TodoConent() {
       <h1>할일 목록</h1>
 
       <ScWorikingList>
-        {todosTodo.data
-          .filter(item => item.isDone === false)
-          .map(todo => (
-            <ScTodoFalseBox>
+        {newTodo
+          .filter((item: any) => item.isDone === false)
+          .map((todo: any) => (
+            <ScTodoFalseBox key={todo.id}>
               <h4>{todo.title}</h4>
-              <div>{todo.contents}</div>
+              <div>{todo.content}</div>
               <ScButton onClick={() => checkSuccessBt(todo.id)}>완료</ScButton>
               <ScButton onClick={() => DeleteBt(todo.id)}>삭제</ScButton>
             </ScTodoFalseBox>
@@ -78,12 +114,12 @@ function TodoConent() {
 
       <h1>완료한 목록 </h1>
       <ScWorikingList>
-        {todosTodo.data
-          .filter(item => item.isDone === true)
-          .map(todo => (
-            <ScTodoTrueBox>
+        {newTodo
+          .filter((item: any) => item.isDone === true)
+          .map((todo: any) => (
+            <ScTodoTrueBox key={todo.id}>
               <h4>{todo.title}</h4>
-              <div>{todo.contents}</div>
+              <div>{todo.content}</div>
               <ScButton onClick={() => RemoveBt(todo.id)}>되돌리기</ScButton>
               <ScButton onClick={() => DeleteBt(todo.id)}>삭제</ScButton>
             </ScTodoTrueBox>

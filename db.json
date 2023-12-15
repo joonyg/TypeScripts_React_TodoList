@@ -8,14 +8,8 @@
     },
     {
       "id": 2,
-      "title": "이것은 제목입니다.",
-      "content": "이것은 내용입니다.",
-      "isDone": false
-    },
-    {
-      "id": 3,
-      "title": "이것은 제목입니다.",
-      "content": "이것은 내용입니다.",
+      "title": "할일이다",
+      "content": "1234",
       "isDone": false
     }
   ]

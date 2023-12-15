@@ -1,20 +1,12 @@
-1. Level 2 브랜치
+1. Level 3 브랜치
    -> typeScripts를 이용한 TodoList 작성 방법 이용
 
-2. 리덕스 파일을 생성 configstore 및 todoslice모듈을 생성
+2. 컴포넌트에 json.server를 연결
 
-todoslice.jsx에는 기존 Level_1에서 사용하였던 기능들을 전부 가져온다
+서버에 연결할때 AxiosInstance을 사용 정적타입검사를 제공함으로 오류를 방지
 
-action payload에 타입을 지정 시켜준다.
+db.json 으로 만들어놓은 데이터를 get 가져온다
 
-configstore에서
+post 투두리스트 추가기능
 
-rootstate로 스토어 전체 상태를 나태내준다음에
-
-typeof store.dispatch를 통해 생성된 AppDispatch로 리덕스 액션 디스패치
-
-useAppDispatch로 컴포넌트 내에서 디스패치 메서드를 사용할수 있게 도움
-
-3. 컴포넌트에서 Dispatch를 사용
-
-4. 이하 Level_1 과 같음
+patch 나머지 삭제 완료 되돌리기 기능 구현
