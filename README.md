@@ -1,4 +1,4 @@
-1. Level 2 브랜치
+1. Level 1 브랜치
    -> typeScripts를 이용한 TodoList 작성 방법 이용
 
 2. Type을 사용 첫 initialTodo 를 컴포넌트 안에 작성
