@@ -1,37 +1,20 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
-
-type TodoLocation = {
-  id: number
-  title: string
-  contents: string
-  isDone: Boolean
-}
-const initialTodo: TodoLocation[] = [
-  {
-    id: 1,
-    title: '이것은 제목입니다.',
-    contents: '이것은 내용입니다.',
-    isDone: false,
-  },
-  {
-    id: 2,
-    title: '이것은 제목입니다.',
-    contents: '이것은 내용입니다.',
-    isDone: false,
-  },
-  {
-    id: 3,
-    title: '이것은 제목입니다.',
-    contents: '이것은 내용입니다.',
-    isDone: false,
-  },
-]
-
+import {
+  addTodo,
+  completeTodo,
+  deleteTodo,
+  undoTodo,
+} from '../redux/modules/todoslice'
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState } from '../redux/config/configStore'
 function TodoConent() {
-  const [addTitle, setAddTitle] = useState<TodoLocation['title']>('') // 제목입력
-  const [addInput, setAddInput] = useState<TodoLocation['contents']>('') // 내용입력
-  const [newTodo, setNewTodo] = useState<TodoLocation[]>(initialTodo)
+  const [addTitle, setAddTitle] = useState('') // 제목입력
+  const [addInput, setAddInput] = useState('') // 내용입력
+  const [newTodo, setNewTodo] = useState()
+  const todosTodo = useSelector((state: RootState) => state.todos)
+  console.log(todosTodo)
+  const dispatch = useDispatch()
 
   const addTitleFunc = (event: React.ChangeEvent<HTMLInputElement>) => {
     setAddTitle(event.target.value)
@@ -42,31 +25,32 @@ function TodoConent() {
   } //내용 함수
 
   const checkTodo = (event: React.FormEvent<HTMLFormElement>) => {
+    //입력 버튼
     event.preventDefault()
-    const newTodoItem: TodoLocation = {
-      id: newTodo.length + 1,
-      title: addTitle,
-      contents: addInput,
-      isDone: false,
-    }
-
-    setNewTodo([...newTodo, newTodoItem])
-    setAddInput('')
+    dispatch(
+      addTodo({
+        id: todosTodo.data.length + 1,
+        title: addTitle,
+        contents: addInput,
+        isDone: false,
+      })
+    )
     setAddTitle('')
-  } //입력 버튼
+    setAddInput('')
+  }
+
   const checkSuccessBt = (id: number) => {
-    setNewTodo(
-      newTodo.map(todo => (todo.id === id ? { ...todo, isDone: true } : todo))
-    )
-  } //성공 버튼
+    //성공 버튼
+    dispatch(completeTodo(id))
+  }
   const DeleteBt = (id: number) => {
-    setNewTodo(newTodo.filter(todo => todo.id !== id))
-  } // 삭제 버튼
+    // 삭제 버튼
+    dispatch(deleteTodo(id))
+  }
   const RemoveBt = (id: number) => {
-    setNewTodo(
-      newTodo.map(todo => (todo.id === id ? { ...todo, isDone: false } : todo))
-    )
-  } // 되돌리기 버튼
+    // 되돌리기 버튼
+    dispatch(undoTodo(id))
+  }
   return (
     <ScTodoGround>
       <h1>TODO_List</h1>
@@ -80,7 +64,7 @@ function TodoConent() {
       <h1>할일 목록</h1>
 
       <ScWorikingList>
-        {newTodo
+        {todosTodo.data
           .filter(item => item.isDone === false)
           .map(todo => (
             <ScTodoFalseBox>
@@ -94,7 +78,7 @@ function TodoConent() {
 
       <h1>완료한 목록 </h1>
       <ScWorikingList>
-        {newTodo
+        {todosTodo.data
           .filter(item => item.isDone === true)
           .map(todo => (
             <ScTodoTrueBox>
